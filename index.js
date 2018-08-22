@@ -24,12 +24,12 @@ app.httpServer = http.createServer((req, res) => {
   app.unifiedServer(req, res);
 });
 
-const httpsServerOptions = {
-  key: fs.readFileSync(path.join(`${__dirname}/https/key.pem`)),
-  cert: fs.readFileSync(path.join(`${__dirname}/https/cert.pem`))
+app.httpsServerOptions = {
+  key: fs.readFileSync(path.join(__dirname, "/https/key.pem")),
+  cert: fs.readFileSync(path.join(__dirname, "/https/cert.pem"))
 };
 
-app.httpsServer = https.createServer(httpsServerOptions, (req, res) => {
+app.httpsServer = https.createServer(app.httpsServerOptions, (req, res) => {
   app.unifiedServer(req, res);
 });
 
@@ -71,9 +71,9 @@ app.unifiedServer = (req, res) => {
       };
 
       chosenHandler(data, (statusCode, payload) => {
-        statusCode = typeof statusCode == "number" ? statusCode : 200;
+        statusCode = typeof statusCode === "number" ? statusCode : 200;
 
-        payload = typeof payload == "object" ? payload : {};
+        payload = typeof payload === "object" ? payload : {};
 
         const payloadString = JSON.stringify(payload);
 

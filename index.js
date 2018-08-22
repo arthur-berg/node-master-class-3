@@ -7,16 +7,20 @@ const path = require("path");
 const handlers = require("./lib/handlers");
 const helpers = require("./lib/helpers");
 const querystring = require("querystring");
+const config = require("./lib/config");
 
 const app = {};
 
 app.init = () => {
-  app.httpServer.listen(3000, () => {
-    console.log("\x1b[36m%s\x1b[0m", "Http server is running on port 3000");
+  app.httpServer.listen(config.httpPort, () => {
+    console.log(
+      "\x1b[36m%s\x1b[0m",
+      `Http server is running on port ${config.httpPort}`
+    );
   });
 
-  app.httpsServer.listen(3001, () => {
-    console.log("Https server is running on port 3001");
+  app.httpsServer.listen(config.httpsPort, () => {
+    console.log(`Https server is running on port ${config.httpsPort}`);
   });
 };
 

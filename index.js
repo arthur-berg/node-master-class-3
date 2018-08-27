@@ -92,7 +92,8 @@ app.router = {
   users: handlers.users,
   tokens: handlers.tokens,
   notFound: handlers.notFound,
-  menu_items: handlers.menu_items
+  menu_items: handlers.menu_items,
+  orders: handlers.orders
 };
 
 app.init();

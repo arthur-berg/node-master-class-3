@@ -6,24 +6,26 @@
 
 Create a user with a POST req to localhost:3000/users with this body:
 
-````{
+```{
 	"email": "youremail@gmail.com",
 	"password": "123",
 	"shopping_list": ['chicken', 'vegetables'],
 	"firstName": "Stefan",
 	"lastName": "Löfven",
 	"adress": "Lövensgatan 9"
-}```
-````
+}
+```
 
 ### 2. Create a token for the user
 
 Create a token for the user by doing a POST request to localhost:3000/tokens with email and password as body
 
+```
 Example: {
 "email": "youremail@gmail.com",
 "password": "123"
 }
+```
 
 ### 3. See all menu items
 
@@ -36,7 +38,11 @@ Example of header parameter: token 2h2szrezuxd5p1mxnmk0
 
 Add menu items by doing a PUT request to localhost:3000/users with valid token in header.
 
-To add menu items simply: {"shopping_list": ['chicken', 'vegetables', 'beef']}
+To add menu items simply:
+
+```
+{"shopping_list": ['chicken', 'vegetables', 'beef']}
+```
 
 ### 5. Logout
 
@@ -55,6 +61,9 @@ Also add valid token in header
 ### 8. Create an order
 
 To create an order do a POST request to localhost:3000/orders with valid token in header and body with your email
+
+```
 {
 "email": "youremail@gmail.com"
 }
+```

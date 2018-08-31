@@ -1,20 +1,20 @@
-const http = require("http");
-const https = require("https");
-const StringDecoder = require("string_decoder").StringDecoder;
-const url = require("url");
-const fs = require("fs");
-const path = require("path");
-const handlers = require("./lib/handlers");
-const helpers = require("./lib/helpers");
-const querystring = require("querystring");
-const config = require("./lib/config");
+const http = require('http');
+const https = require('https');
+const StringDecoder = require('string_decoder').StringDecoder;
+const url = require('url');
+const fs = require('fs');
+const path = require('path');
+const handlers = require('./lib/handlers');
+const helpers = require('./lib/helpers');
+const querystring = require('querystring');
+const config = require('./lib/config');
 
 const app = {};
 
 app.init = () => {
   app.httpServer.listen(config.httpPort, () => {
     console.log(
-      "\x1b[36m%s\x1b[0m",
+      '\x1b[36m%s\x1b[0m',
       `Http server is running on port ${config.httpPort}`
     );
   });
@@ -29,8 +29,8 @@ app.httpServer = http.createServer((req, res) => {
 });
 
 app.httpsServerOptions = {
-  key: fs.readFileSync(path.join(__dirname, "/https/key.pem")),
-  cert: fs.readFileSync(path.join(__dirname, "/https/cert.pem"))
+  key: fs.readFileSync(path.join(__dirname, '/https/key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '/https/cert.pem'))
 };
 
 app.httpsServer = https.createServer(app.httpsServerOptions, (req, res) => {
@@ -42,7 +42,7 @@ app.unifiedServer = (req, res) => {
 
   const path = parsedUrl.pathname;
 
-  const trimmedPath = path.replace(/^\/+|\/+$/g, "");
+  const trimmedPath = path.replace(/^\/+|\/+$/g, '');
 
   const queryStringObject = parsedUrl.query;
 
@@ -50,21 +50,25 @@ app.unifiedServer = (req, res) => {
 
   const headers = req.headers;
 
-  let buffer = "";
+  let buffer = '';
 
   const decoder = new StringDecoder();
 
   req
-    .on("data", chunk => {
+    .on('data', chunk => {
       buffer += decoder.write(chunk);
     })
-    .on("end", () => {
+    .on('end', () => {
       buffer += decoder.end();
 
-      const chosenHandler =
-        typeof app.router[trimmedPath] !== "undefined"
+      let chosenHandler =
+        typeof app.router[trimmedPath] !== 'undefined'
           ? app.router[trimmedPath]
           : handlers.notFound;
+
+      // If the request is within the public directory use to the public handler instead
+      chosenHandler =
+        trimmedPath.indexOf('public/') > -1 ? handlers.public : chosenHandler;
 
       const data = {
         trimmedPath,
@@ -74,14 +78,50 @@ app.unifiedServer = (req, res) => {
         payload: helpers.parseJsonToObject(buffer)
       };
 
-      chosenHandler(data, (statusCode, payload) => {
-        statusCode = typeof statusCode === "number" ? statusCode : 200;
+      chosenHandler(data, (statusCode, payload, contentType) => {
+        statusCode = typeof statusCode === 'number' ? statusCode : 200;
 
-        payload = typeof payload === "object" ? payload : {};
+        contentType = typeof contentType == 'string' ? contentType : 'json';
 
-        const payloadString = JSON.stringify(payload);
+        let payloadString = '';
 
-        res.setHeader("Content-Type", "application/json");
+        if (contentType == 'json') {
+          res.setHeader('Content-Type', 'application/json');
+          payload = typeof payload == 'object' ? payload : {};
+          payloadString = JSON.stringify(payload);
+        }
+
+        if (contentType == 'html') {
+          res.setHeader('Content-Type', 'text/html');
+          payloadString = typeof payload == 'string' ? payload : '';
+        }
+
+        if (contentType == 'favicon') {
+          res.setHeader('Content-Type', 'image/x-icon');
+          payloadString = typeof payload !== 'undefined' ? payload : '';
+        }
+
+        if (contentType == 'plain') {
+          res.setHeader('Content-Type', 'text/plain');
+          payloadString = typeof payload !== 'undefined' ? payload : '';
+        }
+
+        if (contentType == 'css') {
+          res.setHeader('Content-Type', 'text/css');
+          payloadString = typeof payload !== 'undefined' ? payload : '';
+        }
+
+        if (contentType == 'png') {
+          res.setHeader('Content-Type', 'image/png');
+          payloadString = typeof payload !== 'undefined' ? payload : '';
+        }
+
+        if (contentType == 'jpg') {
+          res.setHeader('Content-Type', 'image/jpeg');
+          payloadString = typeof payload !== 'undefined' ? payload : '';
+        }
+
+        res.setHeader('Content-Type', 'application/json');
         res.writeHead(statusCode);
         res.end(payloadString);
       });
@@ -89,11 +129,15 @@ app.unifiedServer = (req, res) => {
 };
 
 app.router = {
-  users: handlers.users,
-  tokens: handlers.tokens,
-  notFound: handlers.notFound,
-  menu_items: handlers.menu_items,
-  orders: handlers.orders
+  'api/users': handlers.users,
+  'api/tokens': handlers.tokens,
+  'api/notFound': handlers.notFound,
+  'api/menu_items': handlers.menu_items,
+  'api/orders': handlers.orders,
+  'account/create': handlers.accountCreate,
+  'order/create': handlers.orderCreate,
+  'session/deleted': handlers.sessionDeleted,
+  'session/created': handlers.sessionCreated
 };
 
 app.init();

@@ -84,7 +84,7 @@ app.unifiedServer = (req, res) => {
         contentType = typeof contentType == 'string' ? contentType : 'json';
 
         let payloadString = '';
-        console.log('contentType', contentType);
+
         if (contentType == 'json') {
           res.setHeader('Content-Type', 'application/json');
           payload = typeof payload == 'object' ? payload : {};

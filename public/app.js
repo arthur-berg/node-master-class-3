@@ -1,4 +1,5 @@
 // Config
+const app = {};
 app.config = {
   sessionToken: false
 };
@@ -142,7 +143,6 @@ app.bindForms = function() {
         var formId = this.id;
         var path = this.action;
         var method = this.method.toUpperCase();
-
         // Hide the error message (if it's currently shown due to a previous error)
         document.querySelector('#' + formId + ' .formError').style.display =
           'none';
@@ -180,6 +180,18 @@ app.bindForms = function() {
               // Create an payload field named "id" if the elements name is actually uid
               if (nameOfElement == 'uid') {
                 nameOfElement = 'id';
+              }
+              if (classOfElement.indexOf('multiselect') > -1) {
+                if (elementIsChecked) {
+                  payload[nameOfElement] =
+                    typeof payload[nameOfElement] == 'object' &&
+                    payload[nameOfElement] instanceof Array
+                      ? payload[nameOfElement]
+                      : [];
+                  payload[nameOfElement].push(valueOfElement);
+                }
+              } else {
+                payload[nameOfElement] = valueOfElement;
               }
             }
           }
@@ -453,6 +465,16 @@ app.init = function() {
 
   // Load data on page
   app.loadDataOnPage();
+};
+
+app.tokenRenewalLoop = function() {
+  setInterval(function() {
+    app.renewToken(function(err) {
+      if (!err) {
+        console.log('Token renewed successfully @ ' + Date.now());
+      }
+    });
+  }, 1000 * 60);
 };
 
 // Call the init processes after the window loads

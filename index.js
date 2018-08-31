@@ -84,7 +84,7 @@ app.unifiedServer = (req, res) => {
         contentType = typeof contentType == 'string' ? contentType : 'json';
 
         let payloadString = '';
-
+        console.log('contentType', contentType);
         if (contentType == 'json') {
           res.setHeader('Content-Type', 'application/json');
           payload = typeof payload == 'object' ? payload : {};
@@ -121,7 +121,6 @@ app.unifiedServer = (req, res) => {
           payloadString = typeof payload !== 'undefined' ? payload : '';
         }
 
-        res.setHeader('Content-Type', 'application/json');
         res.writeHead(statusCode);
         res.end(payloadString);
       });
@@ -129,6 +128,7 @@ app.unifiedServer = (req, res) => {
 };
 
 app.router = {
+  '': handlers.index,
   'api/users': handlers.users,
   'api/tokens': handlers.tokens,
   'api/notFound': handlers.notFound,
@@ -137,7 +137,8 @@ app.router = {
   'account/create': handlers.accountCreate,
   'order/create': handlers.orderCreate,
   'session/deleted': handlers.sessionDeleted,
-  'session/created': handlers.sessionCreated
+  'session/created': handlers.sessionCreated,
+  public: handlers.public
 };
 
 app.init();
